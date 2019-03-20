@@ -306,7 +306,7 @@ void AnycubicTFTClass::ReheatNozzle(){
   #endif
 
   // enable heaters again
-  HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
+  //HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
   #ifdef ANYCUBIC_TFT_DEBUG
     SERIAL_ECHOLNPGM("DEBUG: Clear flags");
   #endif
