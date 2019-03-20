@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _VERSION_H_
-#define _VERSION_H_
+#pragma once
 
 #include "../core/macros.h" // for ENABLED
 
@@ -49,11 +47,17 @@
   #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " (davidramiro, Github)"
 
   /**
+ * Defines the version of the Marlin-AI3M build. Not to be confused with
+ * Marlin's own build number, e.g. 2.0.x.
+ */
+ #define CUSTOM_BUILD_VERSION "v1.4.4"
+
+  /**
    * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
    * here we define this default string as the date where the latest release
    * version was tagged.
    */
-  #define STRING_DISTRIBUTION_DATE "2019-02-08"
+  #define STRING_DISTRIBUTION_DATE "2018-03-20"
 
   /**
    * Required minimum Configuration.h and Configuration_adv.h file versions.
@@ -75,7 +79,7 @@
   /**
    * Defines a generic printer name to be output to the LCD after booting Marlin.
    */
-  #define MACHINE_NAME "i3 Mega"
+  #define MACHINE_NAME "Anycubic i3 Mega"
 
   /**
    * The SOURCE_CODE_URL is the location where users will find the Marlin Source
@@ -83,7 +87,7 @@
    * has a distinct Github fork— the Source Code URL should just be the main
    * Marlin repository.
    */
-  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+  #define SOURCE_CODE_URL "https://github.com/davidramiro/Marlin-AI3M"
 
   /**
    * Default generic printer UUID.
@@ -97,5 +101,3 @@
   #define WEBSITE_URL "http://marlinfw.org"
 
 #endif // USE_AUTOMATIC_VERSIONING
-
-#endif // _VERSION_H_

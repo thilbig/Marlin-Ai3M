@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,18 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * endstops.h - manages endstops
  */
 
-#ifndef __ENDSTOPS_H__
-#define __ENDSTOPS_H__
-
 #include "../inc/MarlinConfig.h"
 #include <stdint.h>
-
-#define VALIDATE_HOMING_ENDSTOPS
 
 enum EndstopEnum : char {
   X_MIN,
@@ -45,35 +41,39 @@ enum EndstopEnum : char {
   Y2_MIN,
   Y2_MAX,
   Z2_MIN,
-  Z2_MAX
+  Z2_MAX,
+  Z3_MIN,
+  Z3_MAX
 };
 
 class Endstops {
 
   public:
 
-    static bool enabled, enabled_globally;
-
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+    #if HAS_EXTRA_ENDSTOPS
       typedef uint16_t esbits_t;
       #if ENABLED(X_DUAL_ENDSTOPS)
-        static float x_endstop_adj;
+        static float x2_endstop_adj;
       #endif
       #if ENABLED(Y_DUAL_ENDSTOPS)
-        static float y_endstop_adj;
+        static float y2_endstop_adj;
       #endif
-      #if ENABLED(Z_DUAL_ENDSTOPS)
-        static float z_endstop_adj;
+      #if Z_MULTI_ENDSTOPS
+        static float z2_endstop_adj;
+      #endif
+      #if ENABLED(Z_TRIPLE_ENDSTOPS)
+        static float z3_endstop_adj;
       #endif
     #else
       typedef uint8_t esbits_t;
     #endif
 
   private:
+    static bool enabled, enabled_globally;
     static esbits_t live_state;
     static volatile uint8_t hit_state;      // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
 
-    #if ENABLED(ENDSTOP_NOISE_FILTER)
+    #if ENDSTOP_NOISE_THRESHOLD
       static esbits_t validated_live_state;
       static uint8_t endstop_poll_count;    // Countdown from threshold for polling
     #endif
@@ -97,6 +97,8 @@ class Endstops {
       );
     }
 
+    static inline bool global_enabled() { return enabled_globally; }
+
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
      */
@@ -119,7 +121,7 @@ class Endstops {
      */
     FORCE_INLINE static esbits_t state() {
       return
-        #if ENABLED(ENDSTOP_NOISE_FILTER)
+        #if ENDSTOP_NOISE_THRESHOLD
           validated_live_state
         #else
           live_state
@@ -162,6 +164,8 @@ class Endstops {
       static void enable_z_probe(const bool onoff=true);
     #endif
 
+    static void resync();
+
     // Debugging of endstops
     #if ENABLED(PINS_DEBUGGING)
       static bool monitor_flag;
@@ -172,4 +176,16 @@ class Endstops {
 
 extern Endstops endstops;
 
-#endif // __ENDSTOPS_H__
+/**
+ * A class to save and change the endstop state,
+ * then restore it when it goes out of scope.
+ */
+class TemporaryGlobalEndstopsState {
+  bool saved;
+
+  public:
+    TemporaryGlobalEndstopsState(const bool enable) : saved(endstops.global_enabled()) {
+      endstops.enable_globally(enable);
+    }
+    ~TemporaryGlobalEndstopsState() { endstops.enable_globally(saved); }
+};

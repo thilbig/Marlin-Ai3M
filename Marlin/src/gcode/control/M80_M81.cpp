@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,17 +23,17 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 #include "../../module/stepper.h"
+#include "../../module/printcounter.h" // for print_job_timer
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
   #include "../../lcd/ultralcd.h"
 #endif
 
 #if ENABLED(ANYCUBIC_TFT_MODEL)
   #include "../../lcd/anycubic_TFT.h"
 #endif
-
 #if HAS_SUICIDE
   #include "../../Marlin.h"
 #endif
@@ -45,13 +45,7 @@
   #endif
 
   // Could be moved to a feature, but this is all the data
-  bool powersupply_on = (
-    #if ENABLED(PS_DEFAULT_OFF)
-      false
-    #else
-      true
-    #endif
-  );
+  bool powersupply_on;
 
   #if HAS_TRINAMIC
     #include "../../feature/tmc_util.h"
@@ -85,13 +79,14 @@
       restore_stepper_drivers();
     #endif
 
-    #if ENABLED(ULTIPANEL)
-      lcd_reset_status();
+    #if HAS_LCD_MENU
+      ui.reset_status();
     #endif
 
     #ifdef ANYCUBIC_TFT_MODEL
       AnycubicTFT.CommandScan();
     #endif
+
   }
 
 #endif // HAS_POWER_SWITCH
@@ -103,13 +98,14 @@
  */
 void GcodeSuite::M81() {
   thermalManager.disable_all_heaters();
+  print_job_timer.stop();
   planner.finish_and_disable();
 
   #if FAN_COUNT > 0
-    for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+    thermalManager.zero_fan_speeds();
     #if ENABLED(PROBING_FANS_OFF)
-      fans_paused = false;
-      ZERO(paused_fanSpeeds);
+      thermalManager.fans_paused = false;
+      ZERO(thermalManager.paused_fan_speed);
     #endif
   #endif
 
@@ -121,11 +117,7 @@ void GcodeSuite::M81() {
     PSU_OFF();
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
-  #endif
-
-  #ifdef ANYCUBIC_TFT_MODEL
-    AnycubicTFT.CommandScan();
   #endif
 }

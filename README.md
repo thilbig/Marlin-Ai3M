@@ -1,26 +1,25 @@
-# Anycubic i3 Mega Marlin 2.0.x-bugfix by davidramiro
+# Anycubic i3 Mega Marlin 2.0.x by davidramiro
 
-__Not for production use. Use with caution!__
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3MFT8QMP5ZRCE&source=url) [![Downloads](https://img.shields.io/github/downloads/davidramiro/Marlin-AI3M/total.svg?style=flat)](https://github.com/davidramiro/Marlin-AI3M/releases) [![Open Issues](https://img.shields.io/github/issues-raw/davidramiro/Marlin-AI3M.svg?style=flat)](https://github.com/davidramiro/Marlin-AI3M/issues?q=is%3Aopen+is%3Aissue) [![Closed Issues](https://img.shields.io/github/issues-closed-raw/davidramiro/Marlin-AI3M.svg?style=flat)](https://github.com/davidramiro/Marlin-AI3M/issues?q=is%3Aissue+is%3Aclosed) [![License](https://img.shields.io/github/license/davidramiro/Marlin-AI3M.svg?style=flat)](https://github.com/davidramiro/Marlin-AI3M/blob/master/LICENSE) [![Latest Release](https://img.shields.io/github/release/davidramiro/Marlin-AI3m.svg?style=flat)](https://github.com/davidramiro/Marlin-AI3M/releases/latest/) ![](https://img.shields.io/github/last-commit/davidramiro/Marlin-AI3m.svg?style=flat)
+
+## Beta build - use with caution!
+
 
 This is my slightly customized version of the [Marlin Firmware](https://github.com/MarlinFirmware/Marlin), gratefully based on [derhopp's repo](https://github.com/derhopp/Marlin-with-Anycubic-i3-Mega-TFT) with his remarkable efforts to get the Anycubic i3 Mega TFT screen to work.
 
 Feel free to discuss issues and work with me further optimizing this firmware!
 
-I am running this version on an i3 Mega Ultrabase V3 (for distinction of the different versions, check [this Thingiverse thread](https://www.thingiverse.com/groups/anycubic-i3-mega/forums/general/topic:27064)).
-Basically, this should work on every Ultrabase version that has two Z-axis endstops. The new Mega-S could work too but is not thoroughly tested. E-steps need to be set to 384 (`M92 E384.00` + `M500`), and calibration is recommended as per the instructions below.
+This firmware works on every i3 Mega that has two Z-axis endstops. If you have an older model with only one Z endstop, a small [adjustment](https://github.com/davidramiro/Marlin-AI3M/wiki/Customization-&-Compiling#single-z-endstop) is required.
+
+The new **Mega-S** should work too, but you will need to enter two additional commands after flashing the firmware, mentioned in the instructions below.
+
+Looking for a **BLtouch firmware**? Head [this way](https://github.com/MNieddu91/Marlin-AI3M-BLTouch)! Mounting and configuration instructions are included.
 
 Note: This is just a firmware, not magic. A big part of print quality still depends on your slicer settings and mechanical condition of your machine.
 
-## Known issues:
+#### Make sure to take a look at the [Wiki](https://github.com/davidramiro/Marlin-AI3M/wiki/), especially the [FAQ](https://github.com/davidramiro/Marlin-AI3M/wiki/Frequently-Asked-Questions).
 
-- **Cura users: Please turn off jerk and acceleration control in your print settings (not visible by default, select advanced visibility to unlock them). Cura's high default jerk and acceleration might cause shifted layers if you use TMC2208.**
-- Estimated print times from your slicer might be slightly off.
-- Special characters on any file or folders name on the SD card will cause the file menu to freeze. Simply replace or remove every special character (Chinese, Arabic, Russian, accents, German & Scandinavian umlauts, ...) from the name. Symbols like dashes or underscores are no problem.
-**Important note: On the SD card that comes with the printer there is a folder with Chinese characters in it by default. Please rename or remove it.**
-- The firmware is not reflected on the TFT-display. As the display has its own closed source firmware, you will remain to see the original Anycubic menu showing the old version number (1.1.0).
-- Cancelling prints via display is buggy sometimes, simply reboot the printer when the menu shows an error. Protip: Switch to OctoPrint.
-- A few parts cooling fan models (e.g. some Sunon 5015) might have trouble running slower than 100%. If that's the case, use [this release](https://github.com/davidramiro/Marlin-AI3M/releases/tag/v19.01.22-pwm).
-
+A German translation of the instructions can be found [here](https://kore.cc/i3mega/download/marlin-ai3m_german.pdf).
 
 ## Why use this?
 
@@ -32,33 +31,64 @@ While the i3 Mega is a great printer for its price and produces fantastic result
 - Even better print quality by adding Linear Advance, S-Curve Acceleration and some tweaks on jerk and acceleration.
 - Thermal runaway protection: Reducing fire risk by detecting a faulty or misaligned thermistor.
 - Very loud stock stepper motor drivers, easily replaced by Watterott or FYSETC TMC2208. To do that, you'd usually have to flip the connectors on the board, this is not necessary using this firmware.
-- No need to slice and upload custom bed leveling tests, simply start one with a simple G26 command.
+- No need to slice and upload custom bed leveling tests, test it with a single GCode command
 - Easily start an auto PID tune or mesh bed leveling via the special menu (insert SD card, select special menu and press the round arrow)
-- Filament change feature enabled: Switch colors/material mid print with `M600` (instructions below)
+- Filament change feature enabled: Switch colors/material mid print (instructions below) and control it via display.
+- The filament runout, pause and stop functionality have been overhauled and improved: The hotend now parks and retracts (on pause or stop) and purges automatically (on resume).
+- Added `M888` cooldown routine for the Anycubic Ultrabase (EXPERIMENTAL): This is meant to be placed at the end Gcode of your slicer. It hovers over the print bed and does circular movements while running the fan. Works best with custom fan ducts.
+  - Optional parameters:
+  - `T<temperature>`:   Target bed temperature (min 15°C), 30°C if not specified (do not set this under room temperature)
+  - `S<fan speed>`:   Fan speed between 0 and 255, full speed if not specified
+  - e.g. `M888 S191 T25`: run the fan at 75% until the bed has cooled down to 25°C
+
+
+## Known issues:
+
+- Power outage support is not included
+- Estimated print times from your slicer might be slightly off.
+- Special characters on any file or folders name on the SD card will cause the file menu to freeze. Simply replace or remove every special character (Chinese, Arabic, Russian, accents, German & Scandinavian umlauts, ...) from the name. Symbols like dashes or underscores are no problem.
+**Important note: On the SD card that comes with the printer there is a folder with Chinese characters in it by default. Please rename or remove it.**
 
 ## How to flash this?
 
-### Compiling
+I provided three different precompiled hex files: One for no modifications on the stepper motor drivers - good for people who didn't touch anything yet, one for boards with TMC2208 installed and where the connectors have been flipped and one with TMC2208 and the connectors in original orientation.
 
-- Download Arduino IDE
+### Choose your precompiled hex:
+
+- Download the precompiled firmware here: [Releases](https://github.com/davidramiro/Marlin-AI3M/releases)
+- Choose the correct hex file:
+- For TMC2208 with connectors in original orientation, use `Marlin-AI3M-vx.x.x-TMC2208.hex`
+- If you use TMC2208 and already reversed your connectors, use `Marlin-AI3M-vx.x.x-TMC2208_reversed.hex`
+- If you use a newer version of the TMC2208 that doesn't require the connector to be reversed (TMC2208 "v2.0" written on the PCB, chip on the top side), please also use `Marlin-AI3M-vx.x.x-TMC2208_reversed.hex`.
+- If you use the original stepper motor drivers, use `Marlin-AI3M-vx.x.x-stock_drivers.hex`.
+
+### Or compile it yourself:
+
+- Download and install [Arduino IDE](https://www.arduino.cc/en/main/software)
 - Clone or download this repo
+- Browse into the Marlin folder and run `Marlin.ino`
 - In the IDE, under `Tools -> Board` select `Genuino Mega 2560` and `ATmega2560`
 - Open Marlin.ino in the Marlin directory of this repo
-- Customize if needed (e.g. motor directions and type at line `559` to `566` and line `857` to `865` in `Configuration.h`)
+- [Customize if needed](https://github.com/davidramiro/Marlin-AI3M/wiki/Customization-&-Compiling) (e.g. motor directions and type at line `559` to `566` and line `857` to `865` in `Configuration.h`)
 - Under `Sketch`, select `Export compiled binary`
-- Look for the .hex file in your temporary directory, e.g. `.../AppData/Local/Temp/arduino_build_xxx/` (only the `Marlin.ino.hex`, not the `Marlin.ino.with_bootloader.hex`!)
+- Look for the .hex file in the Marlin directory (only use the `Marlin.ino.hex`, not the `Marlin.ino.with_bootloader.hex`!)
 
 ### After obtaining the hex file:
 
 - Flash the hex with Cura, OctoPrint or similar
 - Use a tool with a terminal (OctoPrint, Pronterface, Repetier Host, ...) to send commands to your printer.
-- Connect to the printer and send the following commands:
+- **Important** Connect to the printer and send the following commands:
 - `M502` - load hard coded default values
 - `M500` - save them to EEPROM
 
-## Calibration & Tuning
+**If you are using this on a Mega-S, those two additional commands are necessary:**
+- `M92 E384` - set correct steps for the new extruder
+- `M500` - save them
+- I highly recommend calibrating the extruder.
 
-### Manual Mesh Bed Leveling
+#### Calibration and other instructions have been moved to the [Wiki](https://github.com/davidramiro/Marlin-AI3M/wiki/Calibration).
+
+## Manual Mesh Bed Leveling
 
 If you have issues with an uneven bed, this is a great feature.
 
@@ -80,7 +110,7 @@ If you have issues with an uneven bed, this is a great feature.
 - Your nozzle will now move to the first calibration position.
 - Don't adjust the bed itself with screws, only use software from here on!
 - Use a paper - I recommend using thermopaper like a receipt or baking paper
-- Use the onscreen controls to lower or raise your nozzle until you feel a light resistance: (If you want to send the same command multiple times, select the item again, even though it is still marked red.)
+- Use the onscreen controls to lower or raise your nozzle until you feel a light resistance: (**If you want to send the same command multiple times, select the item again, even though it is still marked red.**)
 
 ![Z axis controls][control]
 
@@ -89,7 +119,7 @@ If you have issues with an uneven bed, this is a great feature.
 ![Next mesh point][next]
 
 - Repeat the last two steps until all 25 points are done.
-- Your printer will beep, wait 20 seconds and then save:
+- Your printer will beep, wait 20 seconds and then save (the printer will beep once more to confirm):
 
 
 ![Save to EEPROM][save]
@@ -106,15 +136,14 @@ If you have issues with an uneven bed, this is a great feature.
 
 ### After leveling:
 
-- Reboot the printer.
 - To ensure your mesh gets used on every print from now on, go into your slicer settings and look for the start GCode
 - Look for the Z-homing (either just `G28` or `G28 Z0`) command and insert these two right underneath it:
 ```
 M501
 M420 S1
 ```
-- Enjoy never having to worry about an uneven bed again!
-
+- Your printer should now correctly print first layers even on a warped bed.
+- When working on the printer, installing a new hotend or nozzle or the bed warping over time, a new Mesh Leveling procedure is recommended.
 
 #### Manual commands for use with OctoPrint etc.:
 
@@ -133,45 +162,11 @@ G28
 G26 C H200 P25 R25
 ```
 - To adjust your filament's needed temperature, change the number of the `H` parameter
+- Default bed temperature is 60°C, if you need another temperature, add e.g. `B80`
 - If your leveling is good, you will have a complete pattern of your mesh on your bed that you can peel off in one piece
+- Don't worry if the test looks a bit messy, the important thing is just that the line width is the same all over the mesh
 - Optional: Hang it up on a wall to display it as a trophy of how great your leveling skills are.
 
-
-### Calibrating extruder & PID
-
-
-### Extruder steps
-
-- Get your old E-Steps with `M503`. Look for the line starting with `M92`, the value after the `E` are your current steps.
-- Preheat the hotend with `M104 S220`
-- Send `M83` to prepare the extruder
-- Use a caliper or measuring tape and mark 120 mm (measured downwards from the extruder intake) with a pencil on the filament
-- Send `G1 E100 F100`
-- Your extruder will feed 100 mm of filament now (takes 60 seconds)
-- Measure where your pencil marking is now. If it's exactly 20 mm to the extruder, it's perfectly calibrated
-- If it's less or more than 20 mm, subtract that value from 120 mm, e.g.:
-- If you measure 25 mm, your result would be 95 mm. If you measure 15 mm, your result would be 105 mm
-- Calculate your new value: (100 mm / actually extruded filament) * your current E-Steps (default: 92.6)
-- For example, if your markings are at 15 mm, you'd calculate: (100/105) * 92.6 = 88.19
-- Put in the new value like this: `M92 X80.00 Y80.00 Z400.00 Exxx.xx`, replacing `x` with your value
-- Save with `M500`
-- Finish with `M82`
-- You can repeat the process if you want to get even more precise, you'd have to replace 92.6 with your newly calibrated value in the next calculation.
-
-### PID tuning
-
-**PID calibration is only necessary if you experience fluctuating temperatures.**
-
-- Turn on parts cooling fan If you have a radial blower fan like the original one, I generally recommend running it at 70% because of the 12V mod (`M106 S191`). Remember to also limit it in your slicer.
-- Send `M303 E0 S210 C6 U1` to start extruder PID auto tuning
-- Wait for it to finish
-- Send `M303 E-1 S60 C6 U1` to start heatbed PID auto tuning
-- Wait for it to finish
-- Save with `M500`, turn off fan with `M106 S0`
-
-Note: These commands are tweaked for PLA printing at up to 210/60 °C. If you run into issues at higher temperatures (e.g. PETG & ABS), simply change the `S` parameter to your desired temperature
-
-**Reminder**: PID tuning sometimes fails. If you get fluctuating temperatures or the heater even fails to reach your desired temperature after tuning, you can always go back to the stock settings by sending `M301 P15.94 I1.17 D54.19` and save with `M500`.
 
 ## M600 Filament Change
 
@@ -179,34 +174,55 @@ Note: These commands are tweaked for PLA printing at up to 210/60 °C. If you ru
 
 [m600 demo]: https://kore.cc/i3mega/img/m600demo.jpg "M600 demo"
 
-**A USB host (OctoPrint, Pronterface, ...) is required to use this.**
+**BETA: This now also works without USB printing, via SD & display.**
 
-#### Configuration:
+#### Configuration (only needed once):
 - Send `M603 L0 U0` to use manual loading & unloading.
-- Send `M603 L530 U555` to use automatic loading & unloading
+- Send `M603 L538 U555` to use automatic loading & unloading
+  - The `L` and `U` paramters define the load and unload length in mm. The values above work well on a stock setup, if you modded your extruder, bowden tube or hotend, you might need to adjust those.
 - Save with `M500`
 
 #### Filament change process (manual loading):
-- Place `M600` in your GCode at the desired layer or send it manually
+- For printing via SD:
+  - Place `M600` in your GCode at the desired layer
+- For printing via USB:
+  - Place `M600` in your GCode at the desired layer or send it via terminal
+  - Alternatively: Use `FilamentChange Pause` in the Special Menu
 - The nozzle will park and your printer will beep
+  - For safety reasons, the printer will turn off the hotend after 10 minutes. If you see the temperature being under the target:
+    - SD printing: Click `CONTINUE` **(only once!)** on the screen and wait for the hotend to heat up again.
+    - USB printing: Send `M108` and wait for the hotend to heat up again.
 - Remove the filament from the bowden tube
 - Insert the new filament right up to the nozzle, just until a bit of plastic oozes out
 - Remove the excess filament from the nozzle with tweezers
-- Send `M108` via your USB host.
-- Note for OctoPrint users: After sending `M108`, enable the advanced options at the bottom of the terminal and press `Fake Acknowledgement`
+- For printing via SD:
+  - Click `CONTINUE` on the screen
+- For printing via USB:
+  - Send `M108` via your USB host or use `FilamentChange Resume` in the Special Menu
+  - Note for OctoPrint users: After sending `M108`, enable the advanced options at the bottom of the terminal and press `Fake Acknowledgement`
 
 #### Filament change process (automatic loading):
-- Place `M600` in your GCode at the desired layer or send it manually
+- For printing via SD:
+  - Place `M600` in your GCode at the desired layer
+- For printing via USB:
+  - Place `M600` in your GCode at the desired layer or send it via terminal
+  - Alternatively: Use `FilamentChange Pause` in the Special Menu
 - The nozzle will park
 - The printer will remove the filament right up to the extruder and beep when finished
+  - For safety reasons, the printer will turn off the hotend after 10 minutes. If you see the temperature being under the target:
+    - SD printing: Click `CONTINUE` **(only once!)** on the screen and wait for the hotend to heat up again.
+    - USB printing: Send `M108` and wait for the hotend to heat up again.
 - Insert the new filament just up to the end of the bowden fitting, as shown here:
 
 ![Load Filament][m600 load]
 
 [m600 load]: https://kore.cc/i3mega/img/load.jpg "M600 Load"
 
-- Send `M108` via your USB host.
-- Note for OctoPrint users: After sending `M108`, enable the advanced options at the bottom of the terminal and press `Fake Acknowledgement`
+- For printing via SD:
+  - Click `CONTINUE` on the screen
+- For printing via USB:
+  - Send `M108` via your USB host or use `FilamentChange Resume` in the Special Menu
+  - Note for OctoPrint users: After sending `M108`, enable the advanced options at the bottom of the terminal and press `Fake Acknowledgement`
 - The printer will now pull in the new filament, watch out since it might ooze quite a bit from the nozzle
 - Remove the excess filament from the nozzle with tweezers
 
@@ -226,10 +242,15 @@ M304
 
 After flashing the new version, issue a `M502` and `M500`. After that, enter every line you saved before and finish by saving with `M500`.
 
+## Something went wrong?
+No worries. You can easily go back to the default firmware and restore the default settings.
+- Flash the hex file from the [manufacturer's website](http://www.anycubic3d.com/support/show/594016.html) (in case it's offline, I have uploaded the stock firmwares [here](https://kore.cc/i3mega/download/stockFW/) as well).
+- After flashing, send `M502` and `M500`. Now your machine is exactly as it came out of the box.
+
 
 ## Detailed changes:
 
-- Thermal runaway protection enabled and tweaked
+- Thermal runaway protection thresholds tweaked
 - Manual mesh bed leveling enabled ([check this link](https://github.com/MarlinFirmware/Marlin/wiki/Manual-Mesh-Bed-Leveling) to learn more about it)
 - Heatbed PID mode enabled
 - TMC2208 configured in standalone mode
@@ -239,8 +260,15 @@ After flashing the new version, issue a `M502` and `M500`. After that, enter eve
 - G26 Mesh Validation enabled
 - Some redundant code removed to save memory
 - Minor tweaks on default jerk and acceleration
-- Printcounter enabled (`M78`)
+- Print statistics enabled (send `M78` to read them)
 - `M600` filament change feature enabled
+  - Implemented easy resume via display
+- Filament runout behaviour tweaked
+  - Added purge and retract
+  - Move nozzle to park position on runout
+  - Prevent false positives by adding a small delay to the sensor
+- Pause and stop behaviour tweaked
+- Added `M888` cooldown routine for the Anycubic Ultrabase
 
 
 ## Changes by [derhopp](https://github.com/derhopp/):
@@ -252,21 +280,11 @@ After flashing the new version, issue a `M502` and `M500`. After that, enter eve
 
 
 
-# About Marlin
-
-[![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
-
-<img align="top" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
-
-Additional documentation can be found at the [Marlin Home Page](http://marlinfw.org/).
-Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
-
 ## Marlin 2.0 Bugfix Branch
 
 __Not for production use. Use with caution!__
 
-Marlin 2.0 takes this popular RepRap firmware to the next level with support for much faster 32-bit processor boards.
+Marlin 2.0 takes this popular RepRap firmware to the next level by adding support for much faster 32-bit and ARM-based boards while improving support for 8-bit AVR boards. Read about Marlin's decision to use a "Hardware Abstraction Layer" below.
 
 This branch is for patches to the latest 2.0.x release version. Periodically this branch will form the basis for the next minor 2.0.x release.
 
@@ -274,17 +292,17 @@ Download earlier versions of Marlin on the [Releases page](https://github.com/Ma
 
 ## Building Marlin 2.0
 
-To build Marlin 2.0 you'll need [Arduino IDE 1.9](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). We've posted detailed instructions on how to [build Marlin 2.0 for ARM](http://marlinfw.org/docs/basics/install_arm.html).
+To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). We've posted detailed instructions on [Building Marlin with Arduino](http://marlinfw.org/docs/basics/install_arduino.html) and [Building Marlin with PlatformIO for ReArm](http://marlinfw.org/docs/basics/install_rearm.html) (which applies well to other 32-bit boards).
 
 ## Hardware Abstraction Layer (HAL)
 
-Marlin 2.0 adds a new abstraction layer so that Marlin can build and run on 32-bit boards while still retaining full 8-bit AVR compatibility. In this way, features can be enhanced for more powerful platforms while still supporting AVR, whereas splitting up the code would make it harder to maintain and keep everything in sync.
+Marlin 2.0 introduces a layer of abstraction so that all the existing high-level code can be built for 32-bit platforms while still retaining full 8-bit AVR compatibility. Retaining AVR compatibility and a single code-base is important to us, because we want to make sure that features and patches get as much testing and attention as possible, and that all platforms always benefit from the latest improvements.
 
 ### Current HALs
 
   name|processor|speed|flash|sram|logic|fpu
   ----|---------|-----|-----|----|-----|---
-  [Arduino AVR](https://www.arduino.cc/)|ATmega, ATTiny, etc.|16-20MHz|64-256k|2-8k|5V|no
+  [Arduino AVR](https://www.arduino.cc/)|ATmega, ATTiny, etc.|16-20MHz|64-256k|2-16k|5V|no
   [Teensy++ 2.0](http://www.microchip.com/wwwproducts/en/AT90USB1286)|[AT90USB1286](http://www.microchip.com/wwwproducts/en/AT90USB1286)|16MHz|128k|8k|5V|no
   [Due](https://www.arduino.cc/en/Guide/ArduinoDue), [RAMPS-FD](http://www.reprap.org/wiki/RAMPS-FD), etc.|[SAM3X8E ARM-Cortex M3](http://www.microchip.com/wwwproducts/en/ATsam3x8e)|84MHz|512k|64+32k|3.3V|no
   [Re-ARM](https://www.kickstarter.com/projects/1245051645/re-arm-for-ramps-simple-32-bit-upgrade)|[LPC1768 ARM-Cortex M3](http://www.nxp.com/products/microcontrollers-and-processors/arm-based-processors-and-mcus/lpc-cortex-m-mcus/lpc1700-cortex-m3/512kb-flash-64kb-sram-ethernet-usb-lqfp100-package:LPC1768FBD100)|100MHz|512k|32+16+16k|3.3-5V|no
@@ -314,11 +332,13 @@ Proposed patches should be submitted as a Pull Request against the ([bugfix-2.0.
 ## Credits
 
 The current Marlin dev team consists of:
- - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - English
- - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - English
- - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - English
- - Chris Pepper [[@p3p](https://github.com/p3p)] - English
- - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Portuguese, English
+
+ - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA &nbsp; [![Flattr Scott](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=thinkhead&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+ - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
+ - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
+ - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
+ - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Brazil
+ - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 
 ## License
 
