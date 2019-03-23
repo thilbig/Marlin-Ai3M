@@ -306,7 +306,7 @@ void AnycubicTFTClass::ReheatNozzle(){
   #endif
 
   // enable heaters again
-  //HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
+  HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
   #ifdef ANYCUBIC_TFT_DEBUG
     SERIAL_ECHOLNPGM("DEBUG: Clear flags");
   #endif
@@ -1002,7 +1002,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
               temp=constrain(temp,0,255);
               thermalManager.set_fan_speed(0, temp);
             }
-            thermalManager.set_fan_speed(0, 255);
+            else thermalManager.set_fan_speed(0, 255);
             ANYCUBIC_SERIAL_ENTER();
             break;
           case 19: // A19 stop stepper drivers

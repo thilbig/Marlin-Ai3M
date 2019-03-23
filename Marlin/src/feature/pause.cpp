@@ -62,8 +62,6 @@ PauseMode pause_mode = PAUSE_MODE_PAUSE_PRINT;
 
 PauseMenuResponse pause_menu_response;
 
-extern bool nozzle_timed_out = false;
-
 fil_change_settings_t fc_settings[EXTRUDERS];
 
 #if ENABLED(SDSUPPORT)
@@ -480,7 +478,7 @@ void show_continue_prompt(const bool is_reload) {
 }
 
 void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
-  nozzle_timed_out = false;
+  bool nozzle_timed_out = false;
   #ifdef ANYCUBIC_TFT_MODEL
     AnycubicTFT.PausedByNozzleTimeout = false;
   #endif
@@ -607,7 +605,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   if (!did_pause_print) return;
 
   // Re-enable the heaters if they timed out
-  nozzle_timed_out = false;
+  bool nozzle_timed_out = false;
   #ifdef ANYCUBIC_TFT_MODEL
     AnycubicTFT.PausedByNozzleTimeout = false;
   #endif
