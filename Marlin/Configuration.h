@@ -1647,6 +1647,10 @@
 //
 #define SPEAKER
 
+// Play a (non-earpiercing) startup chime on startup/serial connection
+// of the Trigorilla board
+#define STARTUP_CHIME
+
 //
 // The duration and frequency for the UI feedback sound.
 // Set these to 0 to disable audio feedback in the LCD menus.
